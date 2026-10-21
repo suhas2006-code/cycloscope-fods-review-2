@@ -122,11 +122,11 @@
     <section class="section bi-section" id="bi">
       <div class="section-heading"><div><span class="section-no">06</span><p class="eyebrow">Full-stack + BI bridge</p><h2>One backend. Three consumers.</h2></div><p>The same cleaned data powers this web app and exposes refreshable CSV endpoints for Power BI or Tableau Desktop.</p></div>
       <div class="powerbi-contract">
-        <div class="contract-status"><span class="console-dot"></span><div><small>Integration contract</small><b>Backend ↔ Power BI feeds ready</b></div></div>
+        <div class="contract-status"><span class="console-dot"></span><div><small>Integration contract</small><b>Website ↔ Power BI project complete</b></div></div>
         <div><small>Semantic tables</small><strong id="pbi-tables">4</strong></div>
-        <div><small>Model measures</small><strong id="pbi-measures">12</strong></div>
+        <div><small>Model measures</small><strong id="pbi-measures">23</strong></div>
         <div><small>Report pages</small><strong id="pbi-pages">4</strong></div>
-        <div class="authoring-state"><small>Native visuals</small><strong id="pbi-visuals">0</strong><span>Authoring pending</span></div>
+        <div class="authoring-state"><small>Native visuals</small><strong id="pbi-visuals">35</strong><span>Ready in Desktop</span></div>
         <a id="pbi-project" href="https://github.com/Ganesh2006646/foundations-of-data-science/tree/main/review%20-2/power_bi_dashboard" target="_blank" rel="noreferrer">Open Power BI project ↗</a>
       </div>
       <div class="pipeline" aria-label="Data pipeline"><div><span>01</span><b>UCI source</b><small>day.csv · hour.csv</small></div><i>→</i><div><span>02</span><b>Python API</b><small>filters · summaries · exports</small></div><i>→</i><div><span>03</span><b>Decision layer</b><small>Web · Power BI · Tableau</small></div></div>
@@ -135,7 +135,7 @@
         <article><span>Hourly operations endpoint</span><code id="hourly-url">http://127.0.0.1:8000/api/bi/hourly.csv</code><button class="copy" data-copy="hourly-url">Copy URL</button><p>Build hour × weekday heatmaps, working-day peak comparisons, and dispatch-time reports.</p></article>
         <article><span>Model audit endpoint</span><code id="model-url">http://127.0.0.1:8000/api/bi/predictions.csv</code><button class="copy" data-copy="model-url">Copy URL</button><p>Compare actual demand with all three holdout prediction series—no black-box screenshot required.</p></article>
       </div>
-      <div class="bi-proof"><div><span>✓</span><p><b>Data layer</b>Three refreshable, analysis-ready feeds</p></div><div><span>✓</span><p><b>Semantic layer</b>Four tables and reusable DAX measures</p></div><div class="pending"><span>!</span><p><b>Power BI handoff</b>Replace local file paths, then author native visuals in Desktop</p></div></div>
+      <div class="bi-proof"><div><span>✓</span><p><b>Data layer</b>Three refreshable, analysis-ready feeds</p></div><div><span>✓</span><p><b>Semantic layer</b>Four tables and 23 reusable measures</p></div><div><span>✓</span><p><b>Power BI report</b>Four completed pages with 35 native visuals</p></div></div>
     </section>
 
     <section class="conclusion">
