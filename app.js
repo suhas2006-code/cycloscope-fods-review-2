@@ -2,7 +2,7 @@ const $ = (selector) => document.querySelector(selector);
 const $$ = (selector) => [...document.querySelectorAll(selector)];
 const NS = "http://www.w3.org/2000/svg";
 const palette = { ink: "#10231f", coral: "#f06f52", mint: "#70ad92", yellow: "#f6c453", blue: "#5e89a7", gray: "#bac1b8", paper: "#f3f0e7" };
-const state = { daily: [], hourly: [], questions: [], models: [], summary: null, selectedQuestion: 1, metric: "r2", page: 1, sort: "dteday", sortDir: -1 };
+const state = { daily: [], hourly: [], questions: [], models: [], predictions: [], summary: null, selectedQuestion: 1, metric: "r2", page: 1, sort: "dteday", sortDir: -1 };
 const STATIC_MODE = location.hostname.endsWith("github.io") || location.protocol === "file:" || document.querySelector('meta[name="deployment-mode"]')?.content === "static";
 const staticCache = {};
 
@@ -267,8 +267,31 @@ function renderModels() {
   $("#model-note").textContent=metric==="r2"?"Gradient Boosting explains the most variance; Random Forest is close behind.":metric==="mae"?"Random Forest has the lowest average absolute miss: 439 bikes.":"Gradient Boosting has the lowest penalty on large errors in the exported holdout set.";
 }
 
+function renderModelIntelligence() {
+  const rows=state.predictions;
+  if(!rows.length)return;
+  const pct=fn=>`${(rows.filter(fn).length/rows.length*100).toFixed(1)}%`;
+  $("#prob-accurate").textContent=pct(r=>Math.abs(+r.Residual_RF)<=500);
+  $("#prob-high").textContent=pct(r=>+r.Actual_Rentals>=6000);
+  $("#prob-over").textContent=pct(r=>+r.Random_Forest>+r.Actual_Rentals);
+  const sampled=rows.filter((_,i)=>i%6===0).slice(0,25);
+  lineChart($("#prediction-chart"),[
+    {data:sampled.map((r,i)=>({label:i+1,value:+r.Actual_Rentals})),color:palette.ink,width:3},
+    {data:sampled.map((r,i)=>({label:i+1,value:+r.Random_Forest})),color:palette.coral,width:2}
+  ],{height:280});
+  const within=rows.filter(r=>Math.abs(+r.Residual_RF)<=500).length;
+  const peakError=rows.reduce((a,r)=>Math.abs(+r.Residual_RF)>Math.abs(+a.Residual_RF)?r:a,rows[0]);
+  $("#model-insights").innerHTML=[
+    `<li><b>${within} of ${rows.length}</b> forecasts are within 500 rentals, supporting tactical planning with a safety buffer.</li>`,
+    `<li><b>R² 0.884</b> means Random Forest explains 88.4% of held-out demand variation without using rider-count leakage.</li>`,
+    `<li><b>Largest miss: ${fmt.format(Math.round(Math.abs(+peakError.Residual_RF)))}</b> rentals. Extreme disruption days still require human and weather review.</li>`,
+    `<li><b>Decision rule:</b> use predictions for staffing and rebalancing; retain EDA and hypothesis tests for policy decisions.</li>`
+  ].join("");
+}
+
 function renderPowerBI(manifest){
   $("#pbi-tables").textContent=manifest.tables.length;$("#pbi-measures").textContent=manifest.semantic_measures;$("#pbi-pages").textContent=manifest.report_pages;$("#pbi-visuals").textContent=manifest.native_visuals;$("#pbi-project").href=manifest.repository_url;
+  $("#pbi-table-list").innerHTML=manifest.tables.map(name=>`<span>${esc(name)}</span>`).join("");
 }
 
 async function refresh() {
@@ -282,7 +305,7 @@ async function refresh() {
 async function init() {
   try {
     const [questions,tests,models,powerbi]=await Promise.all([getJSON("/api/questions"),getJSON("/api/hypotheses"),getJSON("/api/models"),getJSON("/api/powerbi/manifest")]);
-    state.questions=questions;state.models=models.metrics;renderQuestions();renderTests(tests);renderModels();renderPowerBI(powerbi);await refresh();
+    state.questions=questions;state.models=models.metrics;state.predictions=models.predictions;renderQuestions();renderTests(tests);renderModels();renderModelIntelligence();renderPowerBI(powerbi);await refresh();
     ["year-filter","season-filter","weather-filter","day-filter"].forEach(id=>$("#"+id).addEventListener("change",refresh));
     ["date-from","date-to","demand-min"].forEach(id=>$("#"+id).addEventListener("change",refresh));
     $("#demand-min").addEventListener("input",()=>$("#demand-output").textContent=`${fmt.format(+$("#demand-min").value)} bikes`);
@@ -311,5 +334,5 @@ function downloadAdminCSV(){
   const url=URL.createObjectURL(new Blob([csv],{type:"text/csv;charset=utf-8"})),a=document.createElement("a");a.href=url;a.download="cycloscope_admin_view.csv";a.click();URL.revokeObjectURL(url);
 }
 
-window.addEventListener("resize",()=>{if(state.daily.length&&state.summary){renderOverview(state.summary);renderAnalysis();renderModels()}});
+window.addEventListener("resize",()=>{if(state.daily.length&&state.summary){renderOverview(state.summary);renderAnalysis();renderModels();renderModelIntelligence()}});
 document.addEventListener("DOMContentLoaded",init);

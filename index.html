@@ -117,6 +117,17 @@
         <article class="model-choice"><span class="choice-tag">Operational choice</span><h3>Random Forest</h3><p>Selected for the lowest holdout MAE—about <b>439 bikes</b>—plus natural handling of nonlinear thresholds and clear feature importance.</p><div class="model-score"><strong>0.884</strong><span>Holdout R²<br><small>147 unseen days</small></span></div><ul><li>No target leakage: <code>casual</code> and <code>registered</code> excluded</li><li>80/20 train-test split with fixed seed</li><li>Compared against linear and boosted baselines</li></ul></article>
         <article class="panel model-panel"><div class="panel-head"><div><span>Transparent benchmark</span><h3>Accuracy vs. operational error</h3></div><div class="metric-switch"><button class="active" data-metric="r2">R²</button><button data-metric="mae">MAE</button><button data-metric="rmse">RMSE</button></div></div><div class="chart" id="model-chart"></div><p class="chart-note" id="model-note">Gradient Boosting has the highest R²; Random Forest wins on absolute bike-count error.</p></article>
       </div>
+      <div class="ml-intelligence">
+        <div class="probability-grid">
+          <article><small>FORECAST RELIABILITY</small><strong id="prob-accurate">—</strong><p>Probability that Random Forest lands within ±500 rentals on unseen days.</p></article>
+          <article><small>HIGH-DEMAND PROBABILITY</small><strong id="prob-high">—</strong><p>Observed probability of demand exceeding 6,000 rentals in the holdout sample.</p></article>
+          <article><small>OVER-FORECAST RISK</small><strong id="prob-over">—</strong><p>Share of holdout predictions where the model forecasts above actual demand.</p></article>
+        </div>
+        <div class="prediction-workbench">
+          <article><div class="panel-head"><div><span>Holdout predictions</span><h3>Actual vs. predicted demand</h3></div><span class="model-badge">147 unseen days</span></div><div class="chart" id="prediction-chart"></div></article>
+          <article class="insight-panel"><span>Data-science insights</span><h3>What the model changes operationally</h3><ul id="model-insights"></ul></article>
+        </div>
+      </div>
     </section>
 
     <section class="section bi-section" id="bi">
@@ -129,6 +140,7 @@
         <div class="authoring-state"><small>Native visuals</small><strong id="pbi-visuals">35</strong><span>Ready in Desktop</span></div>
         <a id="pbi-project" href="https://github.com/Ganesh2006646/foundations-of-data-science/tree/main/review%20-2/power_bi_dashboard" target="_blank" rel="noreferrer">Open Power BI project ↗</a>
       </div>
+      <div class="semantic-tables"><div><span class="console-dot"></span><b>Power BI tables loaded</b></div><div id="pbi-table-list"></div></div>
       <div class="pipeline" aria-label="Data pipeline"><div><span>01</span><b>UCI source</b><small>day.csv · hour.csv</small></div><i>→</i><div><span>02</span><b>Python API</b><small>filters · summaries · exports</small></div><i>→</i><div><span>03</span><b>Decision layer</b><small>Web · Power BI · Tableau</small></div></div>
       <div class="bi-grid">
         <article><span>Power BI / Tableau endpoint</span><code id="daily-url">http://127.0.0.1:8000/api/powerbi/daily.csv</code><button class="copy" data-copy="daily-url">Copy URL</button><p>Use <b>Get Data → Web</b> in Power BI or Tableau to connect the daily analytics table to this versioned feed.</p></article>
