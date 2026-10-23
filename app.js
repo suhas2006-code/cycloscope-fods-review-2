@@ -289,6 +289,23 @@ function renderModelIntelligence() {
   ].join("");
 }
 
+function predictDemand() {
+  const input={year:+$("#pred-year").value,season:$("#pred-season").value,weather:$("#pred-weather").value,working:+$("#pred-working").value,temp:+$("#pred-temp").value,humidity:+$("#pred-humidity").value,wind:+$("#pred-wind").value};
+  const scored=state.daily.map(r=>{
+    const distance=Math.pow((+r.temp_actual-input.temp)/8,2)+Math.pow((+r.hum_actual-input.humidity)/20,2)+Math.pow((+r.wind_actual-input.wind)/12,2)+(r.season_label===input.season?0:2)+(r.weather_label===input.weather?0:2.5)+(+r.workingday===input.working?0:1.5)+(+r.year_label===input.year?0:1);
+    return {row:r,distance};
+  }).sort((a,b)=>a.distance-b.distance).slice(0,25);
+  const weights=scored.map(x=>1/(.25+x.distance)),weightTotal=weights.reduce((a,b)=>a+b,0);
+  const prediction=scored.reduce((sum,x,i)=>sum+(+x.row.cnt)*weights[i],0)/weightTotal;
+  const values=scored.map(x=>+x.row.cnt).sort((a,b)=>a-b),low=values[2],high=values[22];
+  const highProbability=scored.filter(x=>+x.row.cnt>=6000).length/scored.length*100;
+  $("#pred-result").textContent=fmt.format(Math.round(prediction));
+  $("#pred-range").textContent=`${fmt.format(low)}–${fmt.format(high)}`;
+  $("#pred-probability").textContent=`${highProbability.toFixed(0)}%`;
+  $("#pred-band").textContent=prediction>=6000?"High-demand day · pre-stage bikes":prediction>=3500?"Standard demand · normal staffing":"Lower demand · reduce repositioning";
+  $("#pred-confidence").textContent="10th–90th percentile across 25 nearest days";
+}
+
 function renderPowerBI(manifest){
   $("#pbi-tables").textContent=manifest.tables.length;$("#pbi-measures").textContent=manifest.semantic_measures;$("#pbi-pages").textContent=manifest.report_pages;$("#pbi-visuals").textContent=manifest.native_visuals;$("#pbi-project").href=manifest.repository_url;
   $("#pbi-table-list").innerHTML=manifest.tables.map(name=>`<span>${esc(name)}</span>`).join("");
@@ -315,6 +332,8 @@ async function init() {
     $("#clear-advanced").addEventListener("click",()=>{$("#date-from").value="2011-01-01";$("#date-to").value="2012-12-31";$("#demand-min").value=0;$("#demand-output").textContent="0 bikes";$("#rider-focus").value="cnt";$("#record-search").value="";refresh()});
     $("#reset-filters").addEventListener("click",()=>{$$(".filter-dock select").forEach(s=>s.value="all");$("#clear-advanced").click()});
     $$(".metric-switch button").forEach(b=>b.addEventListener("click",()=>{state.metric=b.dataset.metric;renderModels()}));
+    [["pred-temp","pred-temp-out","°C"],["pred-humidity","pred-humidity-out","%"],["pred-wind","pred-wind-out"," km/h"]].forEach(([input,output,unit])=>$("#"+input).addEventListener("input",()=>$("#"+output).textContent=$("#"+input).value+unit));
+    $("#prediction-form").addEventListener("submit",event=>{event.preventDefault();predictDemand()});predictDemand();
     $$(".copy").forEach(b=>b.addEventListener("click",async()=>{await navigator.clipboard.writeText($("#"+b.dataset.copy).textContent);const t=$("#toast");t.classList.add("show");setTimeout(()=>t.classList.remove("show"),1600)}));
     if(STATIC_MODE){
       const urls={daily:"daily",hourly:"hourly",model:"predictions"};

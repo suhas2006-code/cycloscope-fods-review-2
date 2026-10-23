@@ -12,7 +12,7 @@
   <header class="topbar">
     <a class="brand" href="#overview" aria-label="CycleScope home"><span class="brand-mark">C</span><span>CycleScope</span></a>
     <nav aria-label="Main navigation">
-      <a class="active" href="#overview">Overview</a><a href="#admin">Ops console</a><a href="#analysis">15 analyses</a><a href="#evidence">Evidence</a><a href="#model">Model</a><a href="#bi">BI bridge</a>
+      <a class="active" href="#overview">Overview</a><a href="#admin">Ops console</a><a href="#analysis">15 analyses</a><a href="#evidence">Evidence</a><a href="#predictor">Predict demand</a><a href="#bi">BI bridge</a>
     </nav>
     <span class="live-pill"><i></i> API live</span>
   </header>
@@ -116,6 +116,20 @@
       <div class="model-layout">
         <article class="model-choice"><span class="choice-tag">Operational choice</span><h3>Random Forest</h3><p>Selected for the lowest holdout MAE—about <b>439 bikes</b>—plus natural handling of nonlinear thresholds and clear feature importance.</p><div class="model-score"><strong>0.884</strong><span>Holdout R²<br><small>147 unseen days</small></span></div><ul><li>No target leakage: <code>casual</code> and <code>registered</code> excluded</li><li>80/20 train-test split with fixed seed</li><li>Compared against linear and boosted baselines</li></ul></article>
         <article class="panel model-panel"><div class="panel-head"><div><span>Transparent benchmark</span><h3>Accuracy vs. operational error</h3></div><div class="metric-switch"><button class="active" data-metric="r2">R²</button><button data-metric="mae">MAE</button><button data-metric="rmse">RMSE</button></div></div><div class="chart" id="model-chart"></div><p class="chart-note" id="model-note">Gradient Boosting has the highest R²; Random Forest wins on absolute bike-count error.</p></article>
+      </div>
+      <div class="demand-predictor" id="predictor">
+        <div class="predictor-head"><div><span>INTERACTIVE ML FORECAST</span><h3>Predict bike demand from your inputs</h3><p>A nearest-neighbor regression uses the hosted cleaned dataset and comparable historical days. Results update instantly in your browser.</p></div><span class="connected-badge"><i></i> MODEL DATA CONNECTED</span></div>
+        <form id="prediction-form">
+          <label>Year<select id="pred-year"><option value="2012">2012</option><option value="2011">2011</option></select></label>
+          <label>Season<select id="pred-season"><option>Spring</option><option>Summer</option><option selected>Fall</option><option>Winter</option></select></label>
+          <label>Weather<select id="pred-weather"><option selected>Clear</option><option>Mist/Cloudy</option><option>Light Rain/Snow</option></select></label>
+          <label>Day type<select id="pred-working"><option value="1" selected>Working day</option><option value="0">Weekend / holiday</option></select></label>
+          <label>Temperature <output id="pred-temp-out">24°C</output><input id="pred-temp" type="range" min="0" max="42" value="24"></label>
+          <label>Humidity <output id="pred-humidity-out">60%</output><input id="pred-humidity" type="range" min="20" max="100" value="60"></label>
+          <label>Wind speed <output id="pred-wind-out">12 km/h</output><input id="pred-wind" type="range" min="0" max="55" value="12"></label>
+          <button type="submit">Generate prediction →</button>
+        </form>
+        <div class="prediction-result" aria-live="polite"><div><small>PREDICTED DAILY RENTALS</small><strong id="pred-result">—</strong><span id="pred-band">Enter conditions and generate a forecast</span></div><div><small>SIMILAR-DAY RANGE</small><strong id="pred-range">—</strong><span id="pred-confidence">Historical neighbor interval</span></div><div><small>HIGH-DEMAND PROBABILITY</small><strong id="pred-probability">—</strong><span>Chance of exceeding 6,000 rentals</span></div></div>
       </div>
       <div class="ml-intelligence">
         <div class="probability-grid">
